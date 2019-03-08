@@ -32,7 +32,8 @@ void kmpSearch(string &cadena, string &texto, int *p){
 int main(int argc, char const *argv[])
 {
     string texto = "I DO NOT LIKE SEVENTY SEV BUT SEVENTY SEVENTY SEVEN";
-    string cadena = "SEVENTY SEVEN";
+    string cadena;
+    cin>>cadena;
     int *pattern = new int[cadena.length()+1];
     kmpPreprocess(cadena,pattern);
     kmpSearch(cadena,texto,pattern);
