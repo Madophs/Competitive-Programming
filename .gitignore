@@ -1,1 +1,9 @@
+#Ignore vscode hidden folder
 .vscode/
+#Ignore binary files
+!*.*
+#Ignore java binary files
+*.class
+*.bin
+*.ipch
+*.json
