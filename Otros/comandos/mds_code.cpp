@@ -1,11 +1,47 @@
 #include <bits/stdc++.h>
-#include <fstream>
+#include <unistd.h>
 
 using namespace std;
 
+string username = getenv("USER");
+const int partialOptionSize = 6, fullOptionSize = 17, totalSize = partialOptionSize + fullOptionSize; 
+bool fileExists(string filename){
+	ifstream file(filename);
+	return file.good();
+}
+
+void createFileIfNotExists(const char *filePath){
+	ifstream file(filePath);
+	if(!file.good()){
+		ofstream create(filePath);
+		create.close();
+	}
+}
+void createIOFiles(string in, string out){
+	createFileIfNotExists(in.c_str());
+	createFileIfNotExists(out.c_str());
+}
+
+void preprocess(){
+	string createDirectory = "mkdir -p /home/"+username+"/mds_code";
+	string outputPath = "/home/"+username+"/mds_code/out.txt";
+	string inputPath = "/home/"+username+"/mds_code/in.txt";
+    system(createDirectory.c_str());
+	createIOFiles(inputPath, outputPath);;
+}
+
+string getFileExtension(string fileName){
+	int lastDotPosition = fileName.find_last_of('.') + 1;
+	if(lastDotPosition == 0) return "404";
+	string extension = fileName.substr(lastDotPosition, string::npos);
+	return extension;
+}
+
 int main(int argc, char *argv[])
 {
+	preprocess();
     string fileName = "";
+	cout<<setfill(' ');
     if(argc==1){
         cout<<"Faltan los parametros\nmds_code --help o -h para más ayuda"<<endl;
     }else{
@@ -14,6 +50,7 @@ int main(int argc, char *argv[])
             if(argc>=3){
 				string numbers = "";
 				for(int x=2; x<argc; x++){
+					if(!isalpha(argv[x][0]) && !isdigit(argv[x][0])) continue;
 					if(x == 2 && regex_match(argv[x],regex("[0-9]+"))){
 						numbers = argv[x];
 						continue;
@@ -23,6 +60,11 @@ int main(int argc, char *argv[])
 				}
 				numbers = (numbers.empty())?"":"_"+numbers;
 				fileName+=numbers;
+				while(!fileName.empty() && (!isalpha(fileName[0]) && !isdigit(fileName[0]))) fileName.erase(fileName.begin());
+				if(fileName.empty()){
+					cout<<"Los nombres de archivo solo deben iniciar con números o letras para que funcione bien."<<endl;
+					exit(1);
+				}
 				fileName+=".cpp";
 				ofstream file(fileName,ios::out);
 				if(!file){
@@ -62,8 +104,8 @@ int main(int argc, char *argv[])
 				}),fileName.end());
 				if(!numbers.empty())fileName+="_"+numbers;
 				if(fileName[0]=='_') fileName = fileName.substr(1,string::npos);
-				if(isdigit(fileName[0])){
-					cout<<"El nombre de las clases no deben iniciar con números"<<endl;
+				if(!isalpha(fileName[0])){
+					cout<<"El nombre de las clases deben iniciar can una letra para que funcionen bien"<<endl;
 					exit(1);
 				}
 				string className = fileName;
@@ -74,7 +116,7 @@ int main(int argc, char *argv[])
 					exit(1);
 				}else{
 					string imports = "import java.io.*;\n\n";
-					string publicClass = "public class "+className+" {\n\n";
+					string publicClass = "class "+className+" {\n\n";
 					string publicStatic = "\tpublic static void main (String args[]) {\n";
 					string instanceClass = "\t\t"+className+" madophs = new "+className+"();\n";
 					string instanceMethod = "\t\tmadophs.justGetStarted();\n";
@@ -106,19 +148,50 @@ int main(int argc, char *argv[])
             }else{
 				cout<<"Falta el nombre del archivo"<<endl;
 			}
+		}else if(option == "-r" || option == "--run"){
+			string command = "/home/"+username+"/mds_code/mds";
+			system(command.c_str());
+		}else if(option == "-rio" || option == "--run_with_io"){
+			string command = "/home/"+username+"/mds_code/mds < /home/"+username+"/mds_code/in.txt > /home/"+username+"/mds_code/out.txt";
+			system(command.c_str());
+		}else if(option == "-b" || option == "--build"){
+			if(argc  > 2){
+				string tempFileExtension = getFileExtension(argv[2]);
+				if(tempFileExtension == "java" || tempFileExtension == "cpp"){
+					if(tempFileExtension == "cpp"){
+						string tempFileName = argv[2];
+						string command = "g++ -std=c++14 "+tempFileName+" -o /home/"+username+"/mds_code/mds";
+						system(command.c_str());
+					}else{
+						string tempFileName = argv[2];
+						string command = "javac "+tempFileName+" -o /home/"+username+"/mds_code/mds";
+						system(command.c_str());
+					}
+				}else{
+					cout<<"Error el archivo no contiene una extension válida. Actualmente solo se permiten codigos fuente de java y c++."<<endl;
+				}
+			}else{
+				cout<<"Error: no se especifico el archivo"<<endl;
+			}
 		}else if(option == "-h" || option == "--help"){
-			string ayuda = "";
-			string encabezado = "Desarrollado por Jehú Jair Ruiz Villegas A.K.A Madophs.\n\n";
-			string descripcion = "Mds Code genera archivos con extensión separado por guiones bajos,\nya viene con código predefinido para lenguages como c++ y java.\n\n";
-			string sintaxis = "Uso = mds_code [opción] [parametros]\n\n";
-			string op1 = "Opciones:\n\n-h  --help         Muestra este menú de ayuda.\n";
-			string op2 = "-c  --c++          Crea un archivo de c++ (cpp) con código predefinido.\n";
-			string op3 = "-j  --java         Crea un archivo java con código predefinido.\n";
-			string op4 = "-e  --extension    Crea un archivo con la extensión indicada: mds_code -e [extensión] [parametros]\n";
-			ayuda = encabezado+descripcion+sintaxis+op1+op2+op3+op4;
-			cout<<ayuda<<endl;
+			string encabezado = "Desarrollado por Jehú Jair Ruiz Villegas A.K.A Madophs.\n";
+			string descripcion = "Mds Code genera archivos con extensión separado por guiones bajos,\nya viene con código predefinido para lenguages como c++ y java.\n";
+			string sintaxis = "Uso = mds_code [opción] [parametros]\n";
+			string op1 = "Opciones:\n";
+			cout<<encabezado<<endl;
+			cout<<descripcion<<endl;
+			cout<<sintaxis<<endl;
+			cout<<op1<<endl;
+			cout<<setw(partialOptionSize)<<left<<"-j"<<setw(fullOptionSize)<<left<<"--java"<<"Crea un archivo java con código predefinido."<<endl;
+			cout<<setw(partialOptionSize)<<left<<"-c"<<setw(fullOptionSize)<<left<<"--c++"<<"Crea un archivo de c++ (cpp) con código predefinido."<<endl;
+			cout<<setw(partialOptionSize)<<left<<"-e"<<setw(fullOptionSize)<<left<<"--extension"<<"Crea un archivo con la extensión indicada: mds_code -e [extensión] [parametros]"<<endl;
+			cout<<setw(partialOptionSize)<<left<<"-r"<<setw(fullOptionSize)<<left<<"--run"<<"Ejecuta el archivo binario /home/{usuario}/mds_code/mds (Solo soporta Java y C/C++)."<<endl;
+			cout<<setw(partialOptionSize)<<left<<"-rio"<<setw(fullOptionSize)<<left<<"--run_with_io"<<"Ejecuta el archivo binario /home/{usuario}/mds_code/mds (Solo soporta Java y C/C++)."<<endl;
+			cout<<setw(partialOptionSize)<<left<<"-b"<<setw(fullOptionSize)<<left<<"--build"<<"Construye el código fuente de archivo especificado (Solo soporta C++ Y Java)."<<endl;
+			cout<<setw(totalSize)<<left<<" "<<"NOTA: el ejecutable generado se guarda en /home/{usuario}/mds_code bajo el nombre de mds"<<endl;
+			cout<<setw(partialOptionSize)<<left<<"-h"<<setw(fullOptionSize)<<left<<"--help"<<"Muestra este menú de ayuda."<<endl;
 		}else{
-			cout<<"Error opción desconocida\nmds_code --help o -h para más ayuda"<<endl;
+			cout<<"Error: opción desconocida\nmds_code --help o -h para más ayuda"<<endl;
 		}
     }
     return 0;
