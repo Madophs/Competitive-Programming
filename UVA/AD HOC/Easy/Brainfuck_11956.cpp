@@ -28,7 +28,6 @@ int main(){
 			}
 			if(pointer>=100) pointer = 0;
 			if(pointer<0) pointer = 99;
-			if(bytes[pointer]<-255 || bytes[pointer]>255) cout<<"hello"<<endl;
 		}
 		cout<<"Case "<<dec<<t<<":";
 		for(int i = 0; i<100; i++){
