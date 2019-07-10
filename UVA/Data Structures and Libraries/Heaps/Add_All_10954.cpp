@@ -75,7 +75,6 @@ int main(){
 		while(!h.isEmpty()){
 			ans += sum = h.popHeap() + h.popHeap();
 			if(!h.isEmpty())h.insertNode(sum);
-			
 		}
 		cout<<ans<<'\n';
 	}
