@@ -40,6 +40,7 @@ public:
 	int getSize(int v1){
 		return community[findSet(v1)];
 	}
+	
 private:
 	vector<int> rank,parent,community;
 };
