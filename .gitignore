@@ -8,4 +8,4 @@
 *.ipch
 *.json
 #Ignore swp file of vim
-#*.swp
+.*
