@@ -42,9 +42,10 @@ void constructSA(){
 }
 
 void constructlcs(){
+	constructSA();
 	phi[suffix[0]] = -1;
 	int i, longest, ans = 0, index = 0, repetitions = 0;
-	string substring = "", tempSubstring = "";
+	string substring = "";
 	for(i = 1; i < len; ++i){
 		phi[suffix[i]] = suffix[i-1];
 	}
@@ -53,7 +54,6 @@ void constructlcs(){
 			plcp[i] = 0;
 			continue;
 		}
-		tempSubstring = "";
 		while(line[i+longest] == line[phi[i]+longest]){
 		       	++longest;
 		}
@@ -76,9 +76,6 @@ void constructlcs(){
 		}
 		longest = max(longest-1, 0);
 	}
-	for(i = 0; i < len; ++i){
-		lcp[i] = plcp[suffix[i]];
-	}
 	if(substring.empty()){
 		cout<<"No repetitions found!\n";
 	}else{
@@ -94,7 +91,6 @@ int main(){
 	while(t-- && cin.getline(line, MAX_N)){
 		len = strlen(line);
 		line[len++] = '$';
-		constructSA();
 		constructlcs();
 	}
 	return 0;
